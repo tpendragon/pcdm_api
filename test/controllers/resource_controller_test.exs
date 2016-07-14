@@ -13,10 +13,12 @@ defmodule PcdmApi.ResourceControllerTest do
   end
 
   test "GET /objects/1", %{conn: conn} do
-    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
+    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource",
+      metadata: %{stuff: ["things"]}})
 
     conn = get conn, "/objects/#{resource.id}"
     result = json_response(conn, 200)
+    assert result["data"]["attributes"]["stuff"] == ["things"]
   end
   
   test "GET /objects/1?include=members", %{conn: conn} do
@@ -27,6 +29,6 @@ defmodule PcdmApi.ResourceControllerTest do
     conn = get conn, "/objects/#{resource.id}?include=members"
     result = json_response(conn, 200)
 
-    assert result["included"]
+    assert hd(result["included"])["relationships"]["members"]["data"] == []
   end
 end

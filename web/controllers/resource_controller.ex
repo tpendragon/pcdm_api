@@ -18,6 +18,7 @@ defmodule PcdmApi.ResourceController do
     data = 
       Repo.get(Resource, id)
       |> Repo.preload(config.includes)
+    IEx.pry
     conn
     |> render(data: data)
   end

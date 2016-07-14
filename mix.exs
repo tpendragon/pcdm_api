@@ -39,7 +39,7 @@ defmodule PcdmApi.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:benchwarmer, "~> 0.0.2"},
-     {:jsonapi, "~> 0.3.0"}
+     {:jsonapi, github: 'tpendragon/jsonapi', branch: 'no_loaded_subassociation'}
    ]
   end
 

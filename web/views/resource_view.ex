@@ -14,4 +14,8 @@ defmodule PcdmApi.ResourceView do
   def fields, do: []
   def type, do: "objects"
   def relationships, do: [members: PcdmApi.ResourceView]
+
+  def attributes(%Resource{metadata: data}, conn) do
+    Map.take(data, Map.keys(data))
+  end
 end

@@ -2,16 +2,6 @@ require IEx
 defmodule PcdmApi.ResourceControllerTest do
   use PcdmApi.ConnCase, async: true
 
-  test "POST /resource/type", %{conn: conn} do
-    conn = post conn, "/resource/scanned_resource"
-
-    result = json_response(conn, 201)
-    resources = Repo.all(from p in Resource, where: p.model_name == "ScannedResource")
-    assert length(resources) == 1
-
-    assert %{"id" => _} = result
-  end
-
   test "GET /objects/1", %{conn: conn} do
     {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource",
       metadata: %{stuff: ["things"]}})
@@ -20,7 +10,7 @@ defmodule PcdmApi.ResourceControllerTest do
     result = json_response(conn, 200)
     assert result["data"]["attributes"]["stuff"] == ["things"]
   end
-  
+
   test "GET /objects/1?include=members", %{conn: conn} do
     {:ok, member} = Repo.insert(%Resource{model_name: "ScannedResource"})
     {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
@@ -29,6 +19,28 @@ defmodule PcdmApi.ResourceControllerTest do
     conn = get conn, "/objects/#{resource.id}?include=members"
     result = json_response(conn, 200)
 
-    assert hd(result["included"])["relationships"]["members"]["data"] == []
+    assert hd(result["included"])["relationships"]["members"]["data"] == nil
+  end
+
+  test "POST /objects", %{conn: conn} do
+    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
+
+    data = %{
+      "type" => "objects",
+      "attributes" => %{
+        "title" => ["Ember Hamster"],
+      },
+      "relationships" => %{
+        "members" => %{
+          "data" => %{ "type" => "objects", "id" => "#{resource.id}" }
+        }
+      }
+    }
+    conn =
+      conn
+      |> post("/objects", %{"data" => data})
+    result = json_response(conn, 201)
+    assert result["data"]["id"]
+    IEx.pry
   end
 end

@@ -1,3 +1,4 @@
+require IEx
 defmodule PcdmApi.Resource do
   @derive {Poison.Encoder, except: [:__meta__, :member_proxies, :members]}
   use Ecto.Schema
@@ -14,8 +15,7 @@ defmodule PcdmApi.Resource do
 
   def changeset(resource, params \\ %{}) do
     resource
-    |> cast(params, [:model_name], [:metadata])
+    |> cast(params, [], [:metadata])
     |> cast_assoc(:member_proxies)
-    |> validate_required([:model_name])
   end
 end

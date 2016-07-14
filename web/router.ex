@@ -29,6 +29,7 @@ defmodule PcdmApi.Router do
     pipe_through :api
 
     get "/:id", ResourceController, :show
+    post "/", ResourceController, :create
   end
 
   # Other scopes may use custom stacks.

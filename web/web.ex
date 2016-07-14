@@ -32,6 +32,7 @@ defmodule PcdmApi.Web do
 
       alias PcdmApi.Repo
       alias PcdmApi.Resource
+      alias PcdmApi.JSONAPIChangeset
       import Ecto
       import Ecto.Query
 

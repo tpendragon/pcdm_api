@@ -11,6 +11,10 @@ defmodule PcdmApi.ResourceView do
     JSONAPI.Serializer.serialize(PcdmApi.ResourceView, data, conn)
   end
 
+  def render("create.json", params = %{data: data}) do
+    render("show.json", params)
+  end
+
   def fields, do: []
   def type, do: "objects"
   def relationships, do: [members: PcdmApi.ResourceView]

@@ -8,4 +8,9 @@ defmodule PcdmApi.MemberProxy do
 
     timestamps
   end
+
+  def changeset(resource, params \\ %{}) do
+    resource
+    |> cast(params, [:proxy_for_id], [])
+  end
 end

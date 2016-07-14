@@ -1,4 +1,3 @@
-require IEx
 defmodule PcdmApi.PostgresPersisterTest do
   use PcdmApi.ConnCase, async: true
   alias PcdmApi.PostgresPersister
@@ -68,5 +67,39 @@ defmodule PcdmApi.PostgresPersisterTest do
     {:ok, new_resource} = PostgresPersister.persist(params)
 
     assert length(new_resource.members) == 2
+  end
+
+  test "persisting a resource with explicit proxies" do
+    {:ok, resource} = PostgresPersister.persist(%{"model_name" => "Test"})
+    params = %{
+      "model_name" => "ScannedResource",
+      "member_proxies" => [
+        %{
+          "proxy_for_id" => resource.id
+        }
+      ]
+    }
+
+    {:ok, new_resource} = PostgresPersister.persist(params)
+
+    assert (new_resource |> Repo.preload(:members)).members== [resource]
+  end
+
+  test "1000 proxies" do
+    Benchwarmer.benchmark(fn ->
+      {:ok, resource} = PostgresPersister.persist(%{"model_name" => "Test"})
+      params = %{
+        "model_name" => "ScannedResource",
+        "member_proxies" => 
+      Enum.map(0..1000, fn(_)->
+        %{
+          "proxy_for_id" => resource.id
+        }
+      end)
+    }
+
+    {:ok, new_resource} = PostgresPersister.persist(params)
+    (new_resource |> Repo.preload(:members)).members
+    end)
   end
 end

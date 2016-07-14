@@ -1,3 +1,4 @@
+require IEx
 defmodule PcdmApi.ResourceControllerTest do
   use PcdmApi.ConnCase, async: true
 
@@ -9,5 +10,23 @@ defmodule PcdmApi.ResourceControllerTest do
     assert length(resources) == 1
 
     assert %{"id" => _} = result
+  end
+
+  test "GET /objects/1", %{conn: conn} do
+    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
+
+    conn = get conn, "/objects/#{resource.id}"
+    result = json_response(conn, 200)
+  end
+  
+  test "GET /objects/1?include=members", %{conn: conn} do
+    {:ok, member} = Repo.insert(%Resource{model_name: "ScannedResource"})
+    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
+    {:ok, proxy} = Repo.insert(Ecto.build_assoc(resource, :member_proxies, proxy_for_id: member.id))
+
+    conn = get conn, "/objects/#{resource.id}?include=members"
+    result = json_response(conn, 200)
+
+    assert result["included"]
   end
 end

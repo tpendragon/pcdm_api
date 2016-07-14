@@ -3,6 +3,7 @@ defmodule PcdmApi.ResourceController do
   use PcdmApi.Web, :controller
   plug :apply_model_name
   plug :transform_model_name
+  plug JSONAPI.QueryParser, view: PcdmApi.ResourceView
 
   def create(conn, params) do
     case persister.persist(params["resource"]) do
@@ -13,6 +14,14 @@ defmodule PcdmApi.ResourceController do
     end
   end
 
+  def show(conn = %{assigns: %{jsonapi_query: config}}, %{"id" => id}) do
+    data = 
+      Repo.get(Resource, id)
+      |> Repo.preload(config.includes)
+    conn
+    |> render(data: data)
+  end
+
   defp apply_model_name(conn = %{:params => %{"type" => type}}, _opts) do
     params =
       conn.params
@@ -20,6 +29,7 @@ defmodule PcdmApi.ResourceController do
       |> put_in(["resource", "model_name"], type)
     %{conn | params: params}
   end
+  defp apply_model_name(conn, _), do: conn
 
   defp transform_model_name(conn = %{:params => %{"resource" => %{"model_name" => model_name}}}, _opts) do
     params =

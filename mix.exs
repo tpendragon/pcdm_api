@@ -39,7 +39,9 @@ defmodule PcdmApi.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:benchwarmer, "~> 0.0.2"},
-     {:jsonapi, github: 'tpendragon/jsonapi', branch: 'no_loaded_subassociation'}
+     {:jsonapi, github: 'tpendragon/jsonapi', branch:
+       'no_loaded_subassociation'},
+     {:ja_serializer, github: "AgilionApps/ja_serializer"}
    ]
   end
 

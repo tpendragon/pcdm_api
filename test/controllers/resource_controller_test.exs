@@ -1,6 +1,14 @@
 require IEx
 defmodule PcdmApi.ResourceControllerTest do
   use PcdmApi.ConnCase, async: true
+  setup %{conn: conn} do
+    conn =
+      conn
+      |> put_req_header("accept", "application/vnd.api+json")
+      |> put_req_header("content-type", "application/vnd.api+json")
+
+    {:ok, conn: conn}
+  end
 
   test "GET /objects/1", %{conn: conn} do
     {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource",
@@ -38,9 +46,8 @@ defmodule PcdmApi.ResourceControllerTest do
     }
     conn =
       conn
-      |> post("/objects", %{"data" => data})
+      |> post("/objects", Poison.encode!(%{"data" => data}))
     result = json_response(conn, 201)
     assert result["data"]["id"]
-    IEx.pry
   end
 end

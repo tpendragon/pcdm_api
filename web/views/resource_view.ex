@@ -1,17 +1,15 @@
 require IEx
 defmodule PcdmApi.ResourceView do
   use PcdmApi.Web, :view
-  use JSONAPI.View
+  # use JSONAPI.View
 
-  def render("create.json", %{resource: resource}) do
-    resource
+  def render("show.json-api", %{conn: conn, data: data}) do
+    data
+    |> PcdmApi.ResourceSerializer.format(conn)
   end
+  def render("show.json", params), do: render("show.json-api", params)
 
-  def render("show.json", %{data: data, conn: conn}) do
-    JSONAPI.Serializer.serialize(PcdmApi.ResourceView, data, conn)
-  end
-
-  def render("create.json", params = %{data: data}) do
+  def render("create.json-api", params = %{data: data}) do
     render("show.json", params)
   end
 

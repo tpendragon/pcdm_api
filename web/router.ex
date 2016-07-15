@@ -10,19 +10,14 @@ defmodule PcdmApi.Router do
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json-api"]
+    plug JaSerializer.ContentTypeNegotiation
   end
 
   scope "/", PcdmApi do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-  end
-
-  scope "/resource", PcdmApi do
-    pipe_through :api
-
-    post "/:type", ResourceController, :create
   end
 
   scope "/objects", PcdmApi do

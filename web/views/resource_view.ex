@@ -1,16 +1,19 @@
 require IEx
 defmodule PcdmApi.ResourceView do
   use PcdmApi.Web, :view
-  # use JSONAPI.View
+  # use JaSerializer.PhoenixView
 
   def render("show.json-api", %{conn: conn, data: data}) do
-    data
-    |> PcdmApi.ResourceSerializer.format(conn)
+    JaSerializer.format(PcdmApi.ResourceSerializer, data, conn)
   end
   def render("show.json", params), do: render("show.json-api", params)
 
   def render("create.json-api", params = %{data: data}) do
     render("show.json", params)
+  end
+
+  def render("errors.json-api", data) do
+    JaSerializer.PhoenixView.render_errors(data)
   end
 
   def fields, do: []

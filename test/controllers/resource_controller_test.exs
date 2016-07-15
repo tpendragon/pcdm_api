@@ -26,6 +26,7 @@ defmodule PcdmApi.ResourceControllerTest do
 
     conn = get conn, "/objects/#{resource.id}?include=members"
     result = json_response(conn, 200)
+    IEx.pry
 
     assert hd(result["included"])["relationships"]["members"]["data"] == nil
   end
@@ -36,6 +37,7 @@ defmodule PcdmApi.ResourceControllerTest do
     data = %{
       "type" => "objects",
       "attributes" => %{
+        "@context" => %{},
         "title" => ["Ember Hamster"],
       },
       "relationships" => %{
@@ -49,5 +51,21 @@ defmodule PcdmApi.ResourceControllerTest do
       |> post("/objects", Poison.encode!(%{"data" => data}))
     result = json_response(conn, 201)
     assert result["data"]["id"]
+  end
+
+  test "POST /objects without a context", %{conn: conn} do
+    data = %{
+      "type" => "objects",
+      "attributes" => %{
+        "title" => ["Ember Hamster"],
+      }
+    }
+
+    conn =
+      conn
+      |> post("/objects", Poison.encode!(%{"data" => data}))
+    result = json_response(conn, 422)
+    assert %{"title" => "must have an @context key", "source" => %{"pointer" =>
+        "/data/attributes/metadata"}} = hd(result["errors"])
   end
 end

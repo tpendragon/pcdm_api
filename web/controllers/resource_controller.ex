@@ -18,6 +18,10 @@ defmodule PcdmApi.ResourceController do
         conn
         |> put_status(201)
         |> render(data: resource)
+      {:error, changeset} -> 
+        conn
+        |> put_status(422)
+        |> render(:errors, data: changeset)
     end
   end
 end

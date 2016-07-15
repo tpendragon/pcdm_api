@@ -17,5 +17,15 @@ defmodule PcdmApi.Resource do
     resource
     |> cast(params, [], [:metadata])
     |> cast_assoc(:member_proxies)
+    |> validate_context_exists
+  end
+
+  defp validate_context_exists(resource) do
+    case get_field(resource, :metadata) do
+      %{"@context" => _} ->
+        resource
+      _ ->
+        add_error(resource, :metadata, "must have an @context key")
+    end
   end
 end

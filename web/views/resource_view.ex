@@ -4,7 +4,8 @@ defmodule PcdmApi.ResourceView do
   # use JaSerializer.PhoenixView
 
   def render("show.json-api", %{conn: conn, data: data}) do
-    JaSerializer.format(PcdmApi.ResourceSerializer, data, conn)
+    data
+    |> format(conn)
   end
   def render("show.json", params), do: render("show.json-api", params)
 
@@ -16,11 +17,19 @@ defmodule PcdmApi.ResourceView do
     JaSerializer.PhoenixView.render_errors(data)
   end
 
-  def render("members.json-api", %{data: data, conn: conn}) do
-    JaSerializer.format(PcdmApi.ResourceSerializer, data, conn)
+  def render("member_relationship.json-api", %{data: data, conn: conn}) do
+    data
+    |> format(conn)
     |> Map.get(:data)
     |> Map.get(:relationships)
     |> Map.get("members")
+  end
+
+  def render("members.json-api", %{data: data, conn: conn}) do
+    result = data
+      |> format(conn)
+      |> Map.get(:included)
+    %{"data" => result}
   end
 
   def fields, do: []
@@ -29,5 +38,9 @@ defmodule PcdmApi.ResourceView do
 
   def attributes(%Resource{metadata: data}, conn) do
     Map.take(data, Map.keys(data))
+  end
+
+  defp format(data, conn) do
+    JaSerializer.format(PcdmApi.ResourceSerializer, data, conn)
   end
 end

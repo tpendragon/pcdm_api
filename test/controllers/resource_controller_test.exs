@@ -40,6 +40,17 @@ defmodule PcdmApi.ResourceControllerTest do
     assert result["links"]["self"] == "/objects/#{resource.id}/relationships/members"
   end
 
+  test "GET /objects/1/members", %{conn: conn} do
+    {:ok, member} = Repo.insert(%Resource{model_name: "ScannedResource"})
+    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
+    {:ok, proxy} = Repo.insert(Ecto.build_assoc(resource, :member_proxies, proxy_for_id: member.id))
+
+    conn = get conn, "/objects/#{resource.id}/members"
+    result = json_response(conn, 200)
+
+    assert length(result["data"]) == 1
+  end
+
   test "POST /objects", %{conn: conn} do
     {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
 

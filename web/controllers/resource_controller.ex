@@ -11,12 +11,16 @@ defmodule PcdmApi.ResourceController do
     |> render(data: data)
   end
 
-  def members(conn, %{"id" => id}) do
+  def member_relationship(conn, %{"id" => id}) do
     resource =
       Repo.get(Resource, id)
       |> Repo.preload(:members)
     conn
     |> render(data: resource)
+  end
+
+  def members(conn, params) do
+    member_relationship(conn, params)
   end
 
   def create(conn, %{"data" => data}) do

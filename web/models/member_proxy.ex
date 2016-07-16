@@ -11,6 +11,8 @@ defmodule PcdmApi.MemberProxy do
 
   def changeset(resource, params \\ %{}) do
     resource
-    |> cast(params, [:proxy_for_id], [])
+    |> cast(params, [], [:proxy_for_id])
+    |> cast_assoc(:proxy_for)
+    |> foreign_key_constraint(:proxy_for_id)
   end
 end

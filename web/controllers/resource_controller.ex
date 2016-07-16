@@ -17,7 +17,7 @@ defmodule PcdmApi.ResourceController do
       {:ok, resource} ->
         conn
         |> put_status(201)
-        |> render(data: resource)
+        |> render(data: resource |> Repo.preload(:members))
       {:error, changeset} -> 
         conn
         |> put_status(422)

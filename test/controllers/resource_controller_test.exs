@@ -26,7 +26,6 @@ defmodule PcdmApi.ResourceControllerTest do
 
     conn = get conn, "/objects/#{resource.id}?include=members"
     result = json_response(conn, 200)
-    IEx.pry
 
     assert hd(result["included"])["relationships"]["members"]["data"] == nil
   end
@@ -50,7 +49,85 @@ defmodule PcdmApi.ResourceControllerTest do
       conn
       |> post("/objects", Poison.encode!(%{"data" => data}))
     result = json_response(conn, 201)
+    resource = Repo.get(Resource, result["data"]["id"]) |> Repo.preload(:members)
+    assert length(resource.members) == 1
     assert result["data"]["id"]
+    assert result["data"]["relationships"]["members"]["data"]
+  end
+
+  test "POST /objects with a bad ID", %{conn: conn} do
+    data = %{
+      "type" => "objects",
+      "attributes" => %{
+        "@context" => %{},
+        "title" => ["Ember Hamster"],
+      },
+      "relationships" => %{
+        "members" => %{
+          "data" => [
+            %{ "type" => "objects", "attributes" => %{"@context" => %{}}},
+            %{ "type" => "objects", "id" => "100" },
+          ]
+        }
+      }
+    }
+    conn =
+      conn
+      |> post("/objects", Poison.encode!(%{"data" => data}))
+    result = json_response(conn, 422)
+    assert length(Repo.all(from p in Resource)) == 0
+  end
+
+  test "POST /objects and create nested members", %{conn: conn} do
+    data = %{
+      "type" => "objects",
+      "attributes" => %{
+        "@context" => %{},
+        "title" => ["Ember Hamster"],
+      },
+      "relationships" => %{
+        "members" => %{
+          "data" => %{ "type" => "objects", "attributes" => %{"title" =>
+              ["Test"], "@context" => %{}} }
+        }
+      }
+    }
+    conn =
+      conn
+      |> post("/objects", Poison.encode!(%{"data" => data}))
+    result = json_response(conn, 201)
+    resource = Repo.get(Resource, result["data"]["id"]) |> Repo.preload(:members)
+    assert length(resource.members) == 1
+    assert result["data"]["id"]
+    assert result["data"]["relationships"]["members"]["data"]
+  end
+
+  test "POST /objects and both create/link nested members", %{conn: conn} do
+    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
+    data = %{
+      "type" => "objects",
+      "attributes" => %{
+        "@context" => %{},
+        "title" => ["Ember Hamster"],
+      },
+      "relationships" => %{
+        "members" => %{
+          "data" => [
+            %{ "type" => "objects", "attributes" => %{"title" =>
+              ["Test"], "@context" => %{}} },
+          %{"type" => "objects", "id" => resource.id}
+        ]
+        }
+      }
+    }
+    conn =
+      conn
+      |> post("/objects", Poison.encode!(%{"data" => data}))
+    result = json_response(conn, 201)
+    assert result["data"]["id"]
+    resource = Repo.get(Resource, result["data"]["id"]) |> Repo.preload(:members)
+    assert length(resource.members) == 2
+    assert result["data"]["relationships"]["members"]["data"]
   end
 
   test "POST /objects without a context", %{conn: conn} do

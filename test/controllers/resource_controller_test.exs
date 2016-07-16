@@ -30,6 +30,16 @@ defmodule PcdmApi.ResourceControllerTest do
     assert hd(result["included"])["relationships"]["members"]["data"] == nil
   end
 
+  test "GET /objects/1/relationships/members", %{conn: conn} do
+    {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
+
+    conn = get conn, "/objects/#{resource.id}/relationships/members"
+    result = json_response(conn, 200)
+
+    assert result["data"] == []
+    assert result["links"]["self"] == "/objects/#{resource.id}/relationships/members"
+  end
+
   test "POST /objects", %{conn: conn} do
     {:ok, resource} = Repo.insert(%Resource{model_name: "ScannedResource"})
 

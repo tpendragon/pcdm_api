@@ -11,6 +11,14 @@ defmodule PcdmApi.ResourceController do
     |> render(data: data)
   end
 
+  def members(conn, %{"id" => id}) do
+    resource =
+      Repo.get(Resource, id)
+      |> Repo.preload(:members)
+    conn
+    |> render(data: resource)
+  end
+
   def create(conn, %{"data" => data}) do
     changeset = JSONAPIChangeset.changeset(%Resource{}, data)
     case Repo.insert(changeset) do

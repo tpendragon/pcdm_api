@@ -24,6 +24,7 @@ defmodule PcdmApi.Router do
     pipe_through :api
 
     get "/:id", ResourceController, :show
+    get "/:id/relationships/members", ResourceController, :members
     post "/", ResourceController, :create
   end
 

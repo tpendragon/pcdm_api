@@ -16,6 +16,13 @@ defmodule PcdmApi.ResourceView do
     JaSerializer.PhoenixView.render_errors(data)
   end
 
+  def render("members.json-api", %{data: data, conn: conn}) do
+    JaSerializer.format(PcdmApi.ResourceSerializer, data, conn)
+    |> Map.get(:data)
+    |> Map.get(:relationships)
+    |> Map.get("members")
+  end
+
   def fields, do: []
   def type, do: "objects"
   def relationships, do: [members: PcdmApi.ResourceView]
